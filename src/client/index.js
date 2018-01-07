@@ -1,8 +1,5 @@
-import io from 'socket.io-client';
 import {changeBallParameters, addNewBall} from '../actions/ball';
-import {timePassed} from '../actions/time';
-import reducers from '../reducers';
-const server = io.connect('http://localhost:8081/');
+import startClient from './client'
 
 const render = (element, {field: [fieldWidth, fieldHeight], balls}) => {
   element.innerHTML = `
@@ -18,28 +15,16 @@ const randomColor = () => '#' + Array.from({length: 6})
   .map(() => '0123456789ABCDEF'[Math.floor(Math.random() * 16)])
   .join('');
 
-server.on('connect', () => {
-  const ball = {
-    color: randomColor(),
-    id: Date.now() + '' + Math.random()
-  };
-  let currentState = {};
-  let lastCallTime = 0;
+const ball = {
+  color: randomColor(),
+  id: Date.now() + '' + Math.random()
+};
+
+window.addEventListener('load', () => {
   const fieldContainer = document.querySelector('#field-container');
+  const publishAction = startClient(state => render(fieldContainer, state));
 
-  const onNewState = state => {
-    currentState = state;
-    render(fieldContainer, state);
-  };
-
-  const predictNextState = (time) => {
-    onNewState(reducers(currentState, timePassed(time - lastCallTime)));
-    lastCallTime = time;
-    requestAnimationFrame(predictNextState)
-  };
-  requestAnimationFrame(predictNextState);
-
-  server.emit('action', addNewBall(ball));
+  publishAction(addNewBall(ball));
 
   fieldContainer.addEventListener('mousemove', (e) => {
     const action = changeBallParameters({
@@ -47,10 +32,6 @@ server.on('connect', () => {
       direction: [e.offsetX, e.offsetY],
       speed: 100
     });
-    server.emit('action', action);
-    onNewState(reducers(currentState, action));
+    publishAction(action);
   });
-
-  server.on('update', onNewState);
-  server.on('action', action => onNewState(reducers(currentState, action)))
 });
