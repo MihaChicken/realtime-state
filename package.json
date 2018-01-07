@@ -1,0 +1,29 @@
+{
+  "name": "state-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server:watch": "touch ./dist/server.js && ./node_modules/.bin/webpack --config ./webpack.server-config.js --watch & ./node_modules/.bin/nodemon ./dist/server.js",
+    "client:watch": "./node_modules/.bin/webpack-dev-server --config webpack.client-config.js",
+    "dev": "npm run server:watch & npm run client:watch",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "redux": "^3.7.2",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "jest": "^22.0.4",
+    "nodemon": "^1.14.8",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.0"
+  }
+}
